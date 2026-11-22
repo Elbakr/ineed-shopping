@@ -246,7 +246,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
   window.addEventListener('message', e => {
     if (e.origin !== location.origin || !e.data) return;
     if (e.data.type === 'apercu-vue') VUE = { ...(VUE || {}), section: e.data.section, titre: e.data.titre };
-    if (e.data.type === 'apercu-pointe') { VUE = { ...(VUE || {}), pointe: { k: e.data.k, section: e.data.section, texte: e.data.texte, genre: e.data.genre } }; bubble('📍 Je vois l’élément que tu montres : « ' + esc(e.data.texte || e.data.genre) + ' ».\nDis-moi ce que je dois en faire.', 'in'); txt.focus(); }
+    if (e.data.type === 'apercu-pointe') { VUE = { ...(VUE || {}), pointe: { k: e.data.k, section: e.data.section, texte: e.data.texte, genre: e.data.genre } }; const t = '📍 Je vois l’élément que tu montres : « ' + esc(e.data.texte || e.data.genre) + ' ».\nDis-moi ce que je dois en faire.'; if (window.BULLE_POINTE && BULLE_POINTE === msgs.lastElementChild) BULLE_POINTE.remove(); window.BULLE_POINTE = bubble(t, 'in'); txt.focus(); }
     if (e.data.type === 'apercu-pret') setTimeout(() => post({ type: 'apercu-get' }), 1200);
     if (e.data.type === 'apercu-etat' && !ready) { cur = e.data.site; ready = true; }
   });

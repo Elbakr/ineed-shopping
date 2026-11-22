@@ -1188,12 +1188,18 @@ if (APERCU) {
   const nomSec = el => { const s = el && el.closest('[data-s]'); return s ? s.dataset.s : 'haut de page'; };
   const vue = () => { let best = null, bv = 0; document.querySelectorAll('[data-s]').forEach(x => { const r = x.getBoundingClientRect(); const v = Math.max(0, Math.min(innerHeight, r.bottom) - Math.max(0, r.top)); if (v > bv) { bv = v; best = x; } }); const h = best && best.querySelector('h1,h2'); try { parent.postMessage({ type: 'apercu-vue', section: best ? best.dataset.s : 'haut de page', titre: h ? h.textContent.trim().slice(0, 80) : '' }, location.origin); } catch (x) {} };
   addEventListener('scroll', () => { clearTimeout(vue._t); vue._t = setTimeout(vue, 350); }, { passive: true });
+  let pointe_der = '', pointe_t = 0;
   document.addEventListener('click', ev => {
     const el = ev.target.closest('[data-k],a,button,img,h1,h2,h3,li,p,[data-s]'); if (!el) return;
     ev.preventDefault(); ev.stopPropagation();
     document.querySelectorAll('.pointe').forEach(x => x.classList.remove('pointe')); el.classList.add('pointe');
     const k = el.closest('[data-k]')?.dataset.k || el.querySelector?.('[data-k]')?.dataset.k || '';
-    try { parent.postMessage({ type: 'apercu-pointe', k, section: nomSec(el), texte: (el.textContent || el.alt || '').replace(/\s+/g, ' ').trim().slice(0, 140), genre: el.tagName.toLowerCase() }, location.origin); } catch (x) {}
+    /* texte visible seulement : jamais les outils d'édition (« Masquer cette section »…) */
+    const propre = n => { const c = n.cloneNode(true); c.querySelectorAll('.secbar,.tb,.addb,.imgb,.edbar,#edFab,#openEd,[hidden],script,style,button[class*="ed"],[aria-hidden="true"]').forEach(x => x.remove()); return (c.textContent || n.alt || '').replace(/\s+/g, ' ').trim(); };
+    const sec = el.matches('[data-s]'); const h = sec && el.querySelector('h1,h2');
+    const texte = sec ? ('section ' + (el.dataset.s || '') + (h ? ' — ' + propre(h) : '')) : propre(el);
+    const cle = k + '|' + texte; if (cle === pointe_der && Date.now() - pointe_t < 2500) return; pointe_der = cle; pointe_t = Date.now();
+    try { parent.postMessage({ type: 'apercu-pointe', k, section: nomSec(el), texte: texte.slice(0, 140), genre: sec ? 'section' : el.tagName.toLowerCase() }, location.origin); } catch (x) {}
   }, true);
   window.addEventListener('message', e => {
     if (e.origin !== location.origin || !e.data) return;
