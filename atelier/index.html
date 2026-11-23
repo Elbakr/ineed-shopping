@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Atelier ineed — dites-le, c'est fait</title>
+<meta name="description" content="Donnez un ordre en une phrase. L'atelier vous pose quelques questions à toucher, puis fabrique et livre votre application ou votre site, prêt à l'emploi.">
+<meta name="theme-color" content="#06070b">
+<link rel="icon" href="../img/app-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06070b;--card:#0e1018;--line:#1d2130;--ink:#f3f4f8;--mute:#9aa0b4;--blue:#2f5bff;--blue2:#5b7cff;--ok:#20c37a;--warn:#ffb020;--bad:#ff5a5f}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;background:radial-gradient(80% 50% at 15% -10%,rgba(47,91,255,.28),transparent),radial-gradient(60% 40% at 100% 0%,rgba(91,124,255,.12),transparent),var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;max-width:1180px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+.logo i{width:12px;height:12px;background:var(--blue);transform:rotate(45deg);border-radius:2px}
+.logo span{color:var(--mute);font-weight:600}
+.nouveau{background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13.5px;color:var(--mute)}
+.nouveau:hover{color:var(--ink);border-color:#333a52}
+main{max-width:1180px;margin:0 auto;padding:8px 20px 60px}
+.vue{display:none}.vue.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* accueil */
+.hero{max-width:760px;margin:6vh auto 0;text-align:center}
+.hero h1{font-size:clamp(32px,6vw,56px);line-height:1.05;letter-spacing:-.035em;margin:0 0 14px;font-weight:800}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--blue2),#9fb3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);font-size:17px;margin:0 auto 28px;max-width:560px}
+.ordre{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;text-align:left;box-shadow:0 20px 60px rgba(0,0,0,.4);transition:border-color .2s}
+.ordre:focus-within{border-color:var(--blue)}
+.ordre textarea{width:100%;min-height:96px;background:none;border:0;outline:0;resize:none;color:var(--ink);font:16.5px/1.5 Inter,sans-serif}
+.ordre .bas{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.ordre small{color:var(--mute);font-size:12.5px}
+.cta{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px 20px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:8px;min-height:46px;transition:transform .12s,background .2s}
+.cta:hover{background:#2449e6}.cta:active{transform:scale(.97)}.cta:disabled{opacity:.5;cursor:default}
+.exemples{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.exemples button{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:13.5px;color:var(--mute);min-height:40px}
+.exemples button:hover{color:var(--ink);border-color:#333a52}
+.atouts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:48px auto 0;max-width:900px}
+.atouts div{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left}
+.atouts b{display:block;font-size:14.5px;margin-bottom:4px}.atouts span{color:var(--mute);font-size:13px}
+/* questions */
+.qbox{max-width:640px;margin:5vh auto 0}
+.compris{color:var(--mute);font-size:14.5px;margin:0 0 6px}
+.qbox h2{font-size:clamp(22px,4vw,30px);letter-spacing:-.02em;margin:0 0 18px;line-height:1.2}
+.points{display:flex;gap:6px;margin:0 0 22px}.points i{height:4px;flex:1;border-radius:4px;background:var(--line)}.points i.on{background:var(--blue)}
+.choix{display:grid;gap:10px}
+.choix button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;font-size:15.5px;font-weight:500;min-height:54px;transition:border-color .15s,background .15s}
+.choix button:hover{border-color:#39415e}
+.choix button.pris{border-color:var(--blue);background:rgba(47,91,255,.12)}
+.choix button .coche{width:22px;height:22px;border-radius:7px;border:1.5px solid #3a4160;flex:none;display:grid;place-items:center;font-size:13px}
+.choix button.pris .coche{background:var(--blue);border-color:var(--blue)}
+.choix button.pourmoi{color:var(--mute);border-style:dashed}
+.qactions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px}
+.lien{background:none;border:0;color:var(--mute);padding:10px 0;font-size:14px}.lien:hover{color:var(--ink)}
+.limite{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.25);color:#ffd27a;border-radius:12px;padding:10px 12px;font-size:13.5px;margin:0 0 16px}
+/* fabrication */
+.fab{max-width:640px;margin:5vh auto 0}
+.fab h2{font-size:clamp(22px,4vw,30px);letter-spacing:-.02em;margin:0 0 4px}
+.fab .chrono{color:var(--mute);margin:0 0 24px;font-variant-numeric:tabular-nums}
+.etapes{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.etapes li{display:flex;gap:14px;align-items:flex-start;padding:12px 14px;border-radius:14px;color:var(--mute);transition:all .3s}
+.etapes li .rond{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:13px;margin-top:1px}
+.etapes li.encours{background:var(--card);color:var(--ink)}
+.etapes li.encours .rond{border-color:var(--blue);border-top-color:transparent;animation:tourne 0.9s linear infinite}
+.etapes li.fait{color:var(--ink)}.etapes li.fait .rond{background:var(--ok);border-color:var(--ok);color:#04130b;font-weight:800}
+.etapes li b{display:block;font-size:15px}.etapes li span{font-size:13.5px;color:var(--mute)}
+@keyframes tourne{to{transform:rotate(360deg)}}
+.panne{display:none;margin-top:16px;background:rgba(255,90,95,.08);border:1px solid rgba(255,90,95,.3);border-radius:14px;padding:14px;align-items:center;justify-content:space-between;gap:12px}
+.panne.on{display:flex}
+/* livraison */
+.livre{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.ecran{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.barre{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.barre .pts{display:flex;gap:6px}.barre .pts i{width:10px;height:10px;border-radius:50%;background:#2a2f42}
+.barre .nom{flex:1;font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.taille{display:flex;background:#0a0c13;border-radius:9px;padding:3px}
+.taille button{background:none;border:0;border-radius:7px;padding:5px 10px;font-size:12.5px;color:var(--mute);font-weight:600}
+.taille button.on{background:#20263a;color:var(--ink)}
+.cadre{background:#0a0c13;display:flex;justify-content:center;height:min(72vh,780px)}
+.cadre iframe{border:0;width:100%;height:100%;background:#fff;transition:width .3s}
+.cadre.tel iframe{width:390px;max-width:100%}
+.cote{display:grid;gap:14px}
+.bloc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.bloc h3{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}
+.bloc p{margin:0;color:var(--mute);font-size:13.5px}
+.note{display:flex;align-items:center;gap:12px;margin-top:12px}
+.note .anneau{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;background:conic-gradient(var(--ok) calc(var(--n)*1%),#20263a 0)}
+.note .anneau b{width:42px;height:42px;border-radius:50%;background:var(--card);display:grid;place-items:center}
+.boutons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.boutons button{background:#141827;border:1px solid var(--line);border-radius:11px;padding:11px 8px;font-size:13.5px;font-weight:600;min-height:44px}
+.boutons button:hover{border-color:#39415e}
+.boutons .plein{grid-column:1/-1;background:var(--blue);border-color:var(--blue);color:#fff}
+.fil{display:grid;gap:8px;max-height:220px;overflow-y:auto;margin:10px 0}
+.fil div{font-size:13.5px;padding:9px 11px;border-radius:12px;background:#141827;color:var(--mute)}
+.fil div.moi{background:rgba(47,91,255,.15);color:var(--ink);justify-self:end;max-width:90%}
+.retouche{display:flex;gap:8px}
+.retouche input{flex:1;min-width:0;background:#0a0c13;border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--ink);font:15px Inter;outline:0}
+.retouche input:focus{border-color:var(--blue)}
+.retouche button{background:var(--blue);border:0;border-radius:11px;color:#fff;width:46px;font-size:18px}
+.idees{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.idees button{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:12.5px;color:var(--mute)}
+.idees button:hover{color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1b2033;border:1px solid #2d3450;color:var(--ink);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:9}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.err{color:#ff8a8e;font-size:14px;margin-top:10px;min-height:20px}
+footer{text-align:center;color:#5c627a;font-size:12.5px;padding:20px}
+@media (max-width:900px){.livre{grid-template-columns:1fr}.cadre{height:70vh}.atouts{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.top{padding:14px 16px}main{padding:4px 16px 40px}.hero{margin-top:3vh}.hero p{font-size:15.5px}.ordre .bas{flex-direction:column;align-items:stretch}.ordre small{text-align:center}.taille{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="./"><i></i>ineed <span>atelier</span></a>
+  <button class="nouveau" id="nouveau" hidden>+ Nouveau projet</button>
+</header>
+<main>
+  <!-- 1. l'ordre -->
+  <section class="vue on" id="v-ordre">
+    <div class="hero">
+      <h1>Dites-le.<br><em>L'atelier le fabrique.</em></h1>
+      <p>Décrivez votre idée en une phrase. Quelques questions à toucher, puis votre application ou votre site arrive, fini et prêt à servir.</p>
+      <div class="ordre">
+        <textarea id="ordre" maxlength="2000" placeholder="Ex. : une appli pour gérer les rendez-vous de mon salon de coiffure, avec la liste des clients et un rappel du jour"></textarea>
+        <div class="bas"><small>Aucune connaissance technique. Rien à installer.</small><button class="cta" id="lancer">Lancer ✦</button></div>
+      </div>
+      <div class="err" id="err-ordre"></div>
+      <div class="exemples" id="exemples"></div>
+    </div>
+    <div class="atouts">
+      <div><b>Une phrase suffit</b><span>Vous donnez l'ordre, l'atelier s'occupe de tout le reste.</span></div>
+      <div><b>Des questions à toucher</b><span>2 à 4 choix pour viser juste, jamais de jargon.</span></div>
+      <div><b>Contrôlé avant livraison</b><span>Un contrôleur indépendant teste et corrige chaque produit.</span></div>
+      <div><b>Retouches en direct</b><span>« Mets le titre en vert » : c'est fait en quelques secondes.</span></div>
+    </div>
+  </section>
+
+  <!-- 2. les questions -->
+  <section class="vue" id="v-questions">
+    <div class="qbox">
+      <p class="compris" id="compris"></p>
+      <div class="limite" id="limite" hidden></div>
+      <div class="points" id="points"></div>
+      <h2 id="question"></h2>
+      <div class="choix" id="choix"></div>
+      <div class="qactions"><button class="lien" id="retour">← Retour</button><button class="cta" id="valider" hidden>Continuer</button></div>
+    </div>
+  </section>
+
+  <!-- 3. la fabrication -->
+  <section class="vue" id="v-fab">
+    <div class="fab">
+      <h2 id="fab-titre">L'atelier fabrique votre projet</h2>
+      <p class="chrono" id="chrono">0 s</p>
+      <ul class="etapes" id="etapes"></ul>
+      <div class="panne" id="panne"><span>Une étape a calé. Rien n'est perdu.</span><button class="cta" id="reprendre">Reprendre</button></div>
+      <p class="compris" style="margin-top:18px">Vous pouvez fermer cette page : votre projet continue et vous le retrouverez ici.</p>
+    </div>
+  </section>
+
+  <!-- 4. la livraison -->
+  <section class="vue" id="v-livre">
+    <div class="livre">
+      <div class="ecran">
+        <div class="barre"><div class="pts"><i></i><i></i><i></i></div><div class="nom" id="nom-site"></div>
+          <div class="taille"><button data-t="tel" class="on">Téléphone</button><button data-t="pc">Ordinateur</button></div></div>
+        <div class="cadre tel" id="cadre"><iframe id="apercu" title="Votre produit" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"></iframe></div>
+      </div>
+      <div class="cote">
+        <div class="bloc">
+          <h3 id="l-titre"></h3>
+          <p id="l-accroche"></p>
+          <div class="note" id="l-note"></div>
+          <div class="boutons">
+            <button class="plein" id="b-ouvrir">Ouvrir en plein écran ↗</button>
+            <button id="b-lien">Copier le lien</button>
+            <button id="b-dl">Télécharger</button>
+          </div>
+        </div>
+        <div class="bloc">
+          <h3>Une retouche ?</h3>
+          <p>Dites ce que vous voulez changer, l'atelier le fait.</p>
+          <div class="fil" id="fil"></div>
+          <div class="retouche"><input id="consigne" maxlength="1500" placeholder="Ex. : ajoute un mode sombre"><button id="b-retouche" aria-label="Envoyer">➤</button></div>
+          <div class="idees" id="idees"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>ineed.shopping — build by Uxlab.ai</footer>
+<div class="toast" id="toast"></div>
+<script>
+const FN = 'https://nhukbglercraslszazan.supabase.co/functions/v1/ineed-atelier';
+const KEY = 'sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const mem = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }, del(k) { try { localStorage.removeItem(k); } catch {} } };
+async function appel(corps) {
+  const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY, Authorization: 'Bearer ' + KEY }, body: JSON.stringify(corps) }).catch(() => null);
+  const j = r ? await r.json().catch(() => ({})) : {};
+  if (!r || !r.ok || j.erreur) throw new Error(j.erreur || 'Petit souci de connexion. Réessayez dans un instant.');
+  return j;
+}
+function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 2400); }
+function vue(n) { document.querySelectorAll('.vue').forEach((v) => v.classList.toggle('on', v.id === 'v-' + n)); $('#nouveau').hidden = n === 'ordre'; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+/* ---------- 1. ordre ---------- */
+const EX = ["Une appli de rendez-vous pour mon salon de coiffure", "Le site de mon restaurant avec le menu et les horaires", "Un quiz pour réviser le code de la route", "Un outil de devis pour mon entreprise de peinture", "Un suivi de mes dépenses du mois", "Une liste de courses partagée pour la famille"];
+$('#exemples').innerHTML = EX.map((e) => `<button>${esc(e)}</button>`).join('');
+$('#exemples').onclick = (e) => { if (e.target.tagName === 'BUTTON') { $('#ordre').value = e.target.textContent; $('#ordre').focus(); } };
+let S = { ordre: '', cadrage: null, reponses: {}, i: 0 };
+$('#lancer').onclick = async () => {
+  const ordre = $('#ordre').value.trim();
+  $('#err-ordre').textContent = '';
+  if (ordre.length < 8) { $('#err-ordre').textContent = 'Décrivez votre idée en une phrase au moins.'; return; }
+  const b = $('#lancer'); b.disabled = true; b.textContent = 'Je réfléchis…';
+  try {
+    const j = await appel({ action: 'cadrer', ordre });
+    S = { ordre, cadrage: j.cadrage, reponses: {}, i: 0 };
+    mem.set('atelier_q', S);
+    questions();
+  } catch (e) { $('#err-ordre').textContent = e.message; }
+  b.disabled = false; b.textContent = 'Lancer ✦';
+};
+$('#ordre').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('#lancer').click(); });
+
+/* ---------- 2. questions, une par une ---------- */
+function questions() {
+  const c = S.cadrage, qs = c.questions, q = qs[S.i];
+  vue('questions');
+  $('#compris').textContent = 'Compris : ' + (c.resume || c.titre);
+  $('#limite').hidden = !c.limite; $('#limite').textContent = c.limite || '';
+  $('#points').innerHTML = qs.map((_, k) => `<i class="${k <= S.i ? 'on' : ''}"></i>`).join('');
+  $('#question').textContent = q.q;
+  const pris = new Set(S.reponses[q.id] || []);
+  $('#choix').innerHTML = q.choix.map((ch) => `<button data-c="${esc(ch)}" class="${pris.has(ch) ? 'pris' : ''}"><span>${esc(ch)}</span><span class="coche">${pris.has(ch) ? '✓' : ''}</span></button>`).join('')
+    + `<button class="pourmoi" data-c="Choisis pour moi"><span>Choisissez pour moi</span><span class="coche"></span></button>`;
+  $('#valider').hidden = !q.multi;
+  $('#valider').textContent = S.i === qs.length - 1 ? 'Fabriquer ✦' : 'Continuer';
+  $('#choix').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const ch = b.dataset.c;
+    if (q.multi && ch !== 'Choisis pour moi') {
+      b.classList.toggle('pris'); b.querySelector('.coche').textContent = b.classList.contains('pris') ? '✓' : '';
+      S.reponses[q.id] = [...$('#choix').querySelectorAll('.pris')].map((x) => x.dataset.c);
+      mem.set('atelier_q', S);
+      return;
+    }
+    S.reponses[q.id] = [ch];
+    b.classList.add('pris'); b.querySelector('.coche').textContent = '✓';
+    setTimeout(suivante, 180);
+  };
+}
+function suivante() {
+  mem.set('atelier_q', S);
+  if (S.i < S.cadrage.questions.length - 1) { S.i++; questions(); } else fabriquer();
+}
+$('#valider').onclick = () => { const q = S.cadrage.questions[S.i]; if (!(S.reponses[q.id] || []).length) S.reponses[q.id] = ['Choisis pour moi']; suivante(); };
+$('#retour').onclick = () => { if (S.i > 0) { S.i--; questions(); } else vue('ordre'); };
+
+/* ---------- 3. fabrication ---------- */
+const ETAPES = [['cadrage', 'Cadrage', 'Votre demande et vos choix'], ['plan', 'Plan', "L'architecte dessine les écrans et les fonctions"], ['construction', 'Construction', 'Le développeur fabrique le produit'], ['controle', 'Contrôle qualité', 'Un contrôleur indépendant teste et corrige'], ['livre', 'Livraison', 'Votre produit est prêt']];
+let ID = null, suivi = null, debut = 0, dernier = null;
+async function fabriquer() {
+  vue('fab'); dessinerEtapes('plan', []);
+  try {
+    const qs = S.cadrage.questions, rep = {};
+    for (const q of qs) rep[q.q] = S.reponses[q.id] || ['Choisis pour moi'];
+    const j = await appel({ action: 'construire', ordre: S.ordre, cadrage: S.cadrage, reponses: rep });
+    ID = j.id; mem.set('atelier_id', ID); mem.del('atelier_q'); history.replaceState(null, '', '#c=' + ID);
+    debut = Date.now(); suivre();
+  } catch (e) { vue('questions'); toast(e.message); }
+}
+function dessinerEtapes(etape, journal) {
+  const ordre = ETAPES.map((e) => e[0]);
+  const k = etape === 'panne' ? -1 : ordre.indexOf(etape === 'retouche' ? 'livre' : etape);
+  const derniers = {};
+  for (const l of journal || []) derniers[l.etape] = l.texte;
+  $('#etapes').innerHTML = ETAPES.map(([id, t, d], n) => {
+    const cl = etape === 'livre' ? 'fait' : n < k ? 'fait' : n === k ? 'encours' : '';
+    const det = (n === k && derniers[id]) || d;
+    return `<li class="${cl}"><span class="rond">${cl === 'fait' ? '✓' : ''}</span><div><b>${t}</b><span>${esc(det)}</span></div></li>`;
+  }).join('');
+  $('#panne').classList.toggle('on', etape === 'panne');
+}
+function suivre() {
+  clearInterval(suivi);
+  const tic = async () => {
+    $('#chrono').textContent = debut ? Math.round((Date.now() - debut) / 1000) + ' s' : '';
+    if (tic.occupe) return; tic.occupe = true;
+    try {
+      const j = await appel({ action: 'etat', id: ID });
+      const c = j.chantier; dernier = c;
+      if (!debut) debut = new Date(c.cree_le).getTime();
+      $('#fab-titre').textContent = c.plan?.nom ? `L'atelier fabrique « ${c.plan.nom} »` : "L'atelier fabrique votre projet";
+      if (c.etape === 'livre' || (c.etape === 'retouche' && c.nv > 0)) { clearInterval(suivi); await livrer(c); }
+      else { vue('fab'); dessinerEtapes(c.etape, c.journal); }
+    } catch (e) { /* on réessaie au tour suivant */ }
+    tic.occupe = false;
+  };
+  tic(); suivi = setInterval(tic, 2500);
+}
+$('#reprendre').onclick = async () => { try { await appel({ action: 'reprendre', id: ID }); debut = Date.now(); suivre(); } catch (e) { toast(e.message); } };
+
+/* ---------- 4. livraison et retouches ---------- */
+let HTML = '';
+async function livrer(c) {
+  const j = await appel({ action: 'etat', id: ID, html: true });
+  c = j.chantier; HTML = c.html || '';
+  vue('livre');
+  $('#apercu').srcdoc = HTML;
+  const nom = c.plan?.nom || c.cadrage?.titre || 'Votre projet';
+  $('#nom-site').textContent = nom; $('#l-titre').textContent = nom;
+  $('#l-accroche').textContent = c.plan?.accroche || '';
+  const temps = Math.max(1, Math.round((new Date(c.maj_le) - new Date(c.cree_le)) / 1000));
+  $('#l-note').innerHTML = c.note ? `<div class="anneau" style="--n:${c.note}"><b>${c.note}</b></div><p>Note du contrôle qualité sur 100<br>Fabriqué en ${temps < 120 ? temps + ' s' : Math.round(temps / 60) + ' min'}</p>` : '';
+  const fil = (c.journal || []).filter((l) => l.etape === 'retouche' || (l.etape === 'livre' && /^Retouche|^Je n'ai pas/.test(l.texte)));
+  $('#fil').innerHTML = fil.map((l) => `<div class="${l.etape === 'retouche' ? 'moi' : ''}">${esc(l.etape === 'retouche' ? l.texte.replace(/^Retouche demandée : /, '') : l.texte)}</div>`).join('');
+  $('#fil').scrollTop = 1e6;
+  const idees = ['Ajoute un mode sombre', 'Rends les couleurs plus vives', 'Ajoute une page « À propos »', 'Traduis aussi en anglais'];
+  $('#idees').innerHTML = idees.map((t) => `<button>${esc(t)}</button>`).join('');
+  $('#b-retouche').disabled = false; $('#consigne').disabled = false;
+}
+$('#idees').onclick = (e) => { if (e.target.tagName === 'BUTTON') { $('#consigne').value = e.target.textContent; $('#b-retouche').click(); } };
+$('#b-retouche').onclick = async () => {
+  const consigne = $('#consigne').value.trim(); if (consigne.length < 3) return;
+  $('#b-retouche').disabled = true; $('#consigne').disabled = true;
+  $('#fil').insertAdjacentHTML('beforeend', `<div class="moi">${esc(consigne)}</div><div id="enretouche">L'atelier fait la retouche…</div>`); $('#fil').scrollTop = 1e6;
+  try {
+    const avant = (dernier?.journal || []).length;
+    await appel({ action: 'retoucher', id: ID, consigne });
+    $('#consigne').value = '';
+    const t0 = Date.now();
+    const att = setInterval(async () => {
+      try {
+        const j = await appel({ action: 'etat', id: ID }); const c = j.chantier; dernier = c;
+        const l = c.journal[c.journal.length - 1];
+        if (c.etape === 'livre' && c.journal.length > avant + 1) { clearInterval(att); await livrer(c); toast(/^Retouche faite/.test(l.texte) ? 'Retouche faite ✓' : 'Retouche non appliquée'); }
+        else if (Date.now() - t0 > 240000) { clearInterval(att); await livrer(c); }
+      } catch {}
+    }, 2500);
+  } catch (e) { toast(e.message); $('#b-retouche').disabled = false; $('#consigne').disabled = false; $('#enretouche')?.remove(); }
+};
+$('#consigne').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#b-retouche').click(); });
+document.querySelector('.taille').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('.taille button').forEach((x) => x.classList.toggle('on', x === b)); $('#cadre').classList.toggle('tel', b.dataset.t === 'tel'); };
+const lienVoir = () => new URL('voir.html?id=' + ID, location.href).href;
+$('#b-ouvrir').onclick = () => window.open(lienVoir(), '_blank');
+$('#b-lien').onclick = async () => { try { await navigator.clipboard.writeText(lienVoir()); toast('Lien copié'); } catch { toast(lienVoir()); } };
+$('#b-dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([HTML], { type: 'text/html' })); a.download = ($('#l-titre').textContent || 'projet').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html'; a.click(); };
+$('#nouveau').onclick = () => { clearInterval(suivi); ID = null; mem.del('atelier_id'); mem.del('atelier_q'); history.replaceState(null, '', location.pathname); $('#ordre').value = ''; vue('ordre'); };
+
+/* ---------- reprise : un projet en cours se retrouve ---------- */
+(() => {
+  const h = (location.hash.match(/c=([0-9a-f-]{36})/i) || [])[1];
+  ID = h || mem.get('atelier_id');
+  if (ID) { vue('fab'); dessinerEtapes('plan', []); suivre(); return; }
+  const q = mem.get('atelier_q');
+  if (q?.cadrage) { S = q; questions(); }
+})();
+</script>
+</body>
+</html>

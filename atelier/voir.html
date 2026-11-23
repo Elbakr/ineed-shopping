@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Créé avec ineed.shopping</title>
+<link rel="icon" href="../img/app-192.png">
+<style>html,body{margin:0;height:100%;background:#06070b;color:#9aa0b4;font:15px Inter,system-ui,sans-serif}iframe{border:0;width:100%;height:100%;display:block;background:#fff}p{text-align:center;padding-top:40vh}</style>
+</head>
+<body>
+<p id="m">Chargement…</p>
+<script>
+(async () => {
+  const id = (new URLSearchParams(location.search).get('id') || '').match(/^[0-9a-f-]{36}$/i)?.[0];
+  const m = document.getElementById('m');
+  if (!id) { m.textContent = 'Lien incomplet.'; return; }
+  try {
+    const r = await fetch('https://nhukbglercraslszazan.supabase.co/functions/v1/ineed-atelier', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: 'sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB', Authorization: 'Bearer sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB' }, body: JSON.stringify({ action: 'etat', id, html: true }) });
+    const j = await r.json();
+    const c = j.chantier;
+    if (!c?.html) { m.textContent = c ? 'Ce projet est encore en fabrication. Revenez dans un instant.' : 'Projet introuvable.'; return; }
+    document.title = (c.plan?.nom || 'Projet') + ' — créé avec ineed.shopping';
+    const f = document.createElement('iframe');
+    f.setAttribute('sandbox', 'allow-scripts allow-forms allow-popups allow-modals allow-downloads');
+    f.title = c.plan?.nom || 'Projet';
+    f.srcdoc = c.html;
+    m.replaceWith(f);
+  } catch { m.textContent = 'Connexion impossible. Réessayez dans un instant.'; }
+})();
+</script>
+</body>
+</html>
