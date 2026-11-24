@@ -10,6 +10,14 @@
 <body>
 <p id="m">Chargement…</p>
 <script>
+// Mémoire du produit : l'aperçu est isolé (sans accès à ineed.shopping), on lui prête une mémoire gardée ici, par projet.
+function avecMemoire(html, cle) {
+  let d = {}; try { d = JSON.parse(localStorage.getItem('prod:' + cle) || '{}'); } catch {}
+  const shim = `<script>(function(){var d=${JSON.stringify(d).replace(/</g, '\\u003c')};function s(){try{parent.postMessage({ineed:'memoire',cle:${JSON.stringify(cle)},d:d},'*')}catch(e){}}var m={getItem:function(k){k=String(k);return Object.prototype.hasOwnProperty.call(d,k)?d[k]:null},setItem:function(k,v){d[String(k)]=String(v);s()},removeItem:function(k){delete d[String(k)];s()},clear:function(){d={};s()},key:function(i){return Object.keys(d)[i]||null}};Object.defineProperty(m,'length',{get:function(){return Object.keys(d).length}});try{Object.defineProperty(window,'localStorage',{value:m,configurable:true})}catch(e){}try{Object.defineProperty(window,'sessionStorage',{value:m,configurable:true})}catch(e){}})();<\/script>`;
+  return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (h) => h + shim) : shim + html;
+}
+window.addEventListener('message', (e) => { const m = e.data; if (m && m.ineed === 'memoire' && typeof m.cle === 'string' && /^[0-9a-f-]{36}$/i.test(m.cle)) { try { localStorage.setItem('prod:' + m.cle, JSON.stringify(m.d)); } catch {} } });
+
 (async () => {
   const id = (new URLSearchParams(location.search).get('id') || '').match(/^[0-9a-f-]{36}$/i)?.[0];
   const m = document.getElementById('m');
@@ -23,7 +31,7 @@
     const f = document.createElement('iframe');
     f.setAttribute('sandbox', 'allow-scripts allow-forms allow-popups allow-modals allow-downloads');
     f.title = c.plan?.nom || 'Projet';
-    f.srcdoc = c.html;
+    f.srcdoc = avecMemoire(c.html, id);
     m.replaceWith(f);
   } catch { m.textContent = 'Connexion impossible. Réessayez dans un instant.'; }
 })();
