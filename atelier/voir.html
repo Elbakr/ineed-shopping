@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Créé avec ineed.shopping</title>
-<link rel="icon" href="../img/app-192.png">
+<link rel="icon" href="/img/app-192.png">
 <style>html,body{margin:0;height:100%;background:#06070b;color:#9aa0b4;font:15px Inter,system-ui,sans-serif}iframe{border:0;width:100%;height:100%;display:block;background:#fff}p{text-align:center;padding-top:40vh}</style>
 </head>
 <body>
@@ -19,13 +19,21 @@ function avecMemoire(html, cle) {
 window.addEventListener('message', (e) => { const m = e.data; if (m && m.ineed === 'memoire' && typeof m.cle === 'string' && /^[0-9a-f-]{36}$/i.test(m.cle)) { try { localStorage.setItem('prod:' + m.cle, JSON.stringify(m.d)); } catch {} } });
 
 (async () => {
-  const id = (new URLSearchParams(location.search).get('id') || '').match(/^[0-9a-f-]{36}$/i)?.[0];
+  // Deux formes de lien : ineed.shopping/p/<nom> (beau lien, servi par 404.html) ou atelier/voir.html?id=<id>.
+  const q = new URLSearchParams(location.search);
+  const slug = (location.pathname.match(/^\/p\/([a-z0-9-]{1,50})\/?$/i)?.[1] || q.get('s') || '').toLowerCase();
+  let id = (q.get('id') || '').match(/^[0-9a-f-]{36}$/i)?.[0];
   const m = document.getElementById('m');
-  if (!id) { m.textContent = 'Lien incomplet.'; return; }
+  if (!id && !slug) {
+    if (location.pathname.includes('voir.html')) { m.textContent = 'Lien incomplet.'; return; }
+    document.title = 'Page introuvable — ineed.shopping';
+    m.innerHTML = 'Cette page n’existe pas.<br><br><a href="/" style="color:#fff">Aller sur ineed.shopping</a>'; return;
+  }
   try {
-    const r = await fetch('https://nhukbglercraslszazan.supabase.co/functions/v1/ineed-atelier', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: 'sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB', Authorization: 'Bearer sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB' }, body: JSON.stringify({ action: 'etat', id, html: true }) });
+    const r = await fetch('https://nhukbglercraslszazan.supabase.co/functions/v1/ineed-atelier', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: 'sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB', Authorization: 'Bearer sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB' }, body: JSON.stringify(slug ? { action: 'par_slug', slug } : { action: 'etat', id, html: true }) });
     const j = await r.json();
     const c = j.chantier;
+    if (c?.id) id = c.id;
     if (!c?.html) { m.textContent = c ? 'Ce projet est encore en fabrication. Revenez dans un instant.' : 'Projet introuvable.'; return; }
     document.title = (c.plan?.nom || 'Projet') + ' — créé avec ineed.shopping';
     const f = document.createElement('iframe');

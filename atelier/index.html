@@ -105,6 +105,11 @@ main{max-width:1180px;margin:0 auto;padding:8px 20px 60px}
 .idees{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .idees button{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:12.5px;color:var(--mute)}
 .idees button:hover{color:var(--ink)}
+.adr{display:flex;gap:8px;margin-top:12px}.adr input{flex:1;min-width:0;background:#0d101a;border:1px solid var(--line);border-radius:11px;padding:11px 12px;color:var(--ink);font-size:15px}
+.adr button{background:var(--blue);border:0;border-radius:11px;padding:0 14px;color:#fff;font-weight:600;min-height:44px}
+.dom{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.dom li{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0d101a;border:1px solid var(--line);border-radius:11px;padding:8px 10px;font-size:14px}
+.dom li b{font-weight:600;word-break:break-all}.dom li span{color:var(--mute);font-size:12.5px}.dom li button{background:#141827;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-weight:600;font-size:13px;min-height:36px;white-space:nowrap}
+.dom li.pris{opacity:.55}#d-etat{margin-top:10px;font-size:13.5px;color:var(--mute)}#d-etat a{color:var(--ink)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1b2033;border:1px solid #2d3450;color:var(--ink);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:9}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .err{color:#ff8a8e;font-size:14px;margin-top:10px;min-height:20px}
@@ -214,6 +219,13 @@ footer{text-align:center;color:#5c627a;font-size:12.5px;padding:20px}
           <div class="fil" id="fil"></div>
           <div class="retouche"><input id="consigne" maxlength="1500" placeholder="Ex. : ajoute un mode sombre"><button id="b-retouche" aria-label="Envoyer">➤</button></div>
           <div class="idees" id="idees"></div>
+        </div>
+        <div class="bloc" id="b-domaine">
+          <h3>Votre propre adresse</h3>
+          <p>Mettez ce projet en ligne sur un nom à vous, par exemple <b>darzellige.be</b>. Achat, mise en ligne et certificat de sécurité compris.</p>
+          <div class="adr"><input id="d-nom" maxlength="60" placeholder="Nom voulu" autocapitalize="off" autocomplete="off" spellcheck="false"><button id="d-chercher">Chercher</button></div>
+          <ul class="dom" id="d-liste"></ul>
+          <div id="d-etat"></div>
         </div>
       </div>
     </div>
@@ -415,7 +427,8 @@ window.addEventListener('message', (e) => { const m = e.data; if (m && m.ineed =
 let HTML = '';
 async function livrer(c) {
   const j = await appel({ action: 'etat', id: ID, html: true });
-  c = j.chantier; HTML = c.html || '';
+  c = j.chantier; HTML = c.html || ''; SLUG = c.slug || '';
+  majDomaine(c);
   vue('livre');
   $('#apercu').srcdoc = avecMemoire(HTML, ID);
   const nom = c.plan?.nom || c.cadrage?.titre || 'Votre projet';
@@ -453,7 +466,8 @@ $('#b-retouche').onclick = async () => {
 };
 $('#consigne').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#b-retouche').click(); });
 document.querySelector('.taille').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('.taille button').forEach((x) => x.classList.toggle('on', x === b)); $('#cadre').classList.toggle('tel', b.dataset.t === 'tel'); };
-const lienVoir = () => new URL('voir.html?id=' + ID, location.href).href;
+let SLUG = '';
+const lienVoir = () => SLUG ? location.origin + '/p/' + SLUG : new URL('voir.html?id=' + ID, location.href).href;
 $('#b-ouvrir').onclick = () => window.open(lienVoir(), '_blank');
 $('#b-lien').onclick = async () => { try { await navigator.clipboard.writeText(lienVoir()); toast('Lien copié'); } catch { toast(lienVoir()); } };
 $('#b-dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([HTML], { type: 'text/html' })); a.download = ($('#l-titre').textContent || 'projet').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html'; a.click(); };
@@ -523,12 +537,60 @@ async function retourPaiement() {
   mesProjets(); return true;
 }
 
+
+/* ---------- votre propre adresse ---------- */
+function majDomaine(c) {
+  const d = c?.domaine;
+  if (d && d.etat === 'en_ligne') $('#d-etat').innerHTML = `En ligne sur <a href="https://${esc(d.domaine)}" target="_blank" rel="noopener">${esc(d.domaine)} ↗</a>`;
+  else if (d && d.etat === 'achat') $('#d-etat').textContent = `Mise en ligne de ${d.domaine} en cours…`;
+  else if (!$('#d-etat').dataset.garde) $('#d-etat').textContent = '';
+  if (!$('#d-nom').value && c?.plan?.nom) $('#d-nom').value = c.plan.nom.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '');
+}
+$('#d-chercher').onclick = async () => {
+  const nom = $('#d-nom').value.trim(); if (!nom) return $('#d-nom').focus();
+  $('#d-chercher').disabled = true; $('#d-liste').innerHTML = ''; $('#d-etat').textContent = 'Je cherche…';
+  try {
+    const j = await appel({ action: 'domaines', nom });
+    if (j.bientot) { $('#d-etat').textContent = j.erreur; return; }
+    $('#d-etat').textContent = '';
+    $('#d-liste').innerHTML = j.domaines.map((x) => x.libre
+      ? `<li><div><b>${esc(x.domaine)}</b><br><span>${Number(x.eur).toFixed(2).replace('.', ',')} € la 1re année, TVA comprise</span></div><button data-d="${esc(x.domaine)}">Prendre</button></li>`
+      : `<li class="pris"><div><b>${esc(x.domaine)}</b><br><span>${x.premium ? 'Adresse premium' : 'Déjà prise'}</span></div></li>`).join('');
+  } catch (e) { $('#d-etat').textContent = e.message; }
+  finally { $('#d-chercher').disabled = false; }
+};
+$('#d-nom').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#d-chercher').click(); });
+$('#d-liste').onclick = async (e) => {
+  const b = e.target.closest('button[data-d]'); if (!b) return;
+  if (!SESSION) return connecter({ garder: ID });
+  b.disabled = true; b.textContent = '…';
+  try { const j = await appel({ action: 'domaine_payer', id: ID, domaine: b.dataset.d }); location.href = j.url; }
+  catch (e2) { toast(e2.message); b.disabled = false; b.textContent = 'Prendre'; }
+};
+async function retourAdresse() {
+  const sid = new URLSearchParams(location.search).get('adresse'); if (!sid) return;
+  history.replaceState(null, '', location.pathname + location.hash);
+  $('#d-etat').dataset.garde = '1';
+  const dire = (t) => { $('#d-etat').innerHTML = t; };
+  dire('Paiement reçu. J’achète l’adresse et je mets votre projet en ligne…');
+  for (let k = 0; k < 6; k++) {
+    try {
+      const j = await appel({ action: 'domaine_confirmer', session: sid });
+      if (j.etat === 'en_ligne') { dire(`En ligne sur <a href="https://${esc(j.domaine)}" target="_blank" rel="noopener">${esc(j.domaine)} ↗</a>. Le cadenas de sécurité arrive dans quelques minutes.`); toast('Adresse en ligne ✓'); return; }
+      if (j.etat === 'rembourse') { dire('L’adresse n’a pas pu être achetée : vous êtes remboursé intégralement.'); return; }
+    } catch (e) { dire(esc(e.message)); return; }
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  dire('La mise en ligne continue. Vous recevrez un courriel dès que c’est prêt.');
+}
+
 /* ---------- reprise : un projet en cours se retrouve ---------- */
 (async () => {
   const revenu = retourGoogle();
   majCompte();
   if (revenu && await apresConnexion()) return;
   if (await retourPaiement()) return;
+  retourAdresse();
   const h = (location.hash.match(/c=([0-9a-f-]{36})/i) || [])[1];
   ID = h || ID || mem.get('atelier_id');
   if (ID) { vue('fab'); dessinerEtapes('plan', []); suivre(); return; }
