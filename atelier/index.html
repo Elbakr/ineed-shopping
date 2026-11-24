@@ -256,6 +256,7 @@ function questions() {
   };
 }
 function suivante() {
+  if (suivante.verrou) return; suivante.verrou = true; setTimeout(() => { suivante.verrou = false; }, 400);
   mem.set('atelier_q', S);
   if (S.i < S.cadrage.questions.length - 1) { S.i++; questions(); } else fabriquer();
 }
@@ -266,6 +267,7 @@ $('#retour').onclick = () => { if (S.i > 0) { S.i--; questions(); } else vue('or
 const ETAPES = [['cadrage', 'Cadrage', 'Votre demande et vos choix'], ['plan', 'Plan', "L'architecte dessine les écrans et les fonctions"], ['construction', 'Construction', 'Le développeur fabrique le produit'], ['controle', 'Contrôle qualité', 'Un contrôleur indépendant teste et corrige'], ['livre', 'Livraison', 'Votre produit est prêt']];
 let ID = null, suivi = null, debut = 0, dernier = null;
 async function fabriquer() {
+  if (fabriquer.lance) return; fabriquer.lance = true;
   vue('fab'); dessinerEtapes('plan', []);
   try {
     const qs = S.cadrage.questions, rep = {};
@@ -273,7 +275,7 @@ async function fabriquer() {
     const j = await appel({ action: 'construire', ordre: S.ordre, cadrage: S.cadrage, reponses: rep });
     ID = j.id; mem.set('atelier_id', ID); mem.del('atelier_q'); history.replaceState(null, '', '#c=' + ID);
     debut = Date.now(); suivre();
-  } catch (e) { vue('questions'); toast(e.message); }
+  } catch (e) { fabriquer.lance = false; vue('questions'); toast(e.message); }
 }
 function dessinerEtapes(etape, journal) {
   const ordre = ETAPES.map((e) => e[0]);
@@ -359,7 +361,7 @@ const lienVoir = () => new URL('voir.html?id=' + ID, location.href).href;
 $('#b-ouvrir').onclick = () => window.open(lienVoir(), '_blank');
 $('#b-lien').onclick = async () => { try { await navigator.clipboard.writeText(lienVoir()); toast('Lien copié'); } catch { toast(lienVoir()); } };
 $('#b-dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([HTML], { type: 'text/html' })); a.download = ($('#l-titre').textContent || 'projet').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html'; a.click(); };
-$('#nouveau').onclick = () => { clearInterval(suivi); ID = null; mem.del('atelier_id'); mem.del('atelier_q'); history.replaceState(null, '', location.pathname); $('#ordre').value = ''; vue('ordre'); };
+$('#nouveau').onclick = () => { fabriquer.lance = false; clearInterval(suivi); ID = null; mem.del('atelier_id'); mem.del('atelier_q'); history.replaceState(null, '', location.pathname); $('#ordre').value = ''; vue('ordre'); };
 
 /* ---------- reprise : un projet en cours se retrouve ---------- */
 (() => {
