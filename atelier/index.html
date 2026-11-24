@@ -272,7 +272,8 @@ async function fabriquer() {
   try {
     const qs = S.cadrage.questions, rep = {};
     for (const q of qs) rep[q.q] = S.reponses[q.id] || ['Choisis pour moi'];
-    const j = await appel({ action: 'construire', ordre: S.ordre, cadrage: S.cadrage, reponses: rep });
+    S.cle = S.cle || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2, 10)); mem.set('atelier_q', S);
+    const j = await appel({ action: 'construire', ordre: S.ordre, cadrage: S.cadrage, reponses: rep, cle: S.cle });
     ID = j.id; mem.set('atelier_id', ID); mem.del('atelier_q'); history.replaceState(null, '', '#c=' + ID);
     debut = Date.now(); suivre();
   } catch (e) { fabriquer.lance = false; vue('questions'); toast(e.message); }
