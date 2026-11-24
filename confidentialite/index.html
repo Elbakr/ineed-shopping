@@ -18,6 +18,7 @@ p,li{overflow-wrap:anywhere}
 ul{padding-left:20px}
 .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
 footer{max-width:760px;margin:0 auto;padding:20px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+.f{display:grid;gap:10px;margin-top:12px}.f input,.f textarea{font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;width:100%}.f textarea{min-height:110px}.f button{font:inherit;font-weight:600;padding:13px;border:0;border-radius:10px;background:var(--acc);color:#fff;min-height:48px}#rep{margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -30,7 +31,7 @@ footer{max-width:760px;margin:0 auto;padding:20px;color:var(--mute);font-size:14
 </div>
 
 <h2>Qui est responsable</h2>
-<p>Le service Flova, accessible sur ineed.shopping. Contact : <a href="mailto:contact@ineed.shopping">contact@ineed.shopping</a>.</p>
+<p>Le service Flova, accessible sur ineed.shopping. Contact : <a href="#ecrire">formulaire en bas de cette page</a>.</p>
 
 <h2>Les données que nous traitons</h2>
 <ul>
@@ -56,10 +57,25 @@ footer{max-width:760px;margin:0 auto;padding:20px;color:var(--mute);font-size:14
 <p>Certains prestataires peuvent traiter des données hors de l'Union européenne, avec les garanties prévues par le RGPD.</p>
 
 <h2>Vos droits</h2>
-<p>Vous pouvez demander l'accès, la rectification, l'effacement, la limitation ou la portabilité de vos données, et vous opposer à leur traitement, en écrivant à <a href="mailto:contact@ineed.shopping">contact@ineed.shopping</a>. Vous pouvez aussi introduire une réclamation auprès de l'Autorité de protection des données (Belgique).</p>
+<p>Vous pouvez demander l'accès, la rectification, l'effacement, la limitation ou la portabilité de vos données, et vous opposer à leur traitement, avec le <a href="#ecrire">formulaire ci-dessous</a>. Vous pouvez aussi introduire une réclamation auprès de l'Autorité de protection des données (Belgique).</p>
 
 <h2>Données Google</h2>
 <p>Si vous vous connectez avec Google, Flova reçoit uniquement votre adresse e-mail, votre nom et votre photo de profil. Ces informations servent seulement à vous connecter. Elles ne sont jamais vendues ni utilisées pour de la publicité.</p>
+<h2 id="ecrire">Nous écrire</h2>
+<form class="f box" id="fc" novalidate>
+<input name="nom" placeholder="Votre nom" autocomplete="name" required>
+<input name="email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
+<textarea name="message" placeholder="Votre demande (accès, correction, effacement…)"></textarea>
+<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit">Envoyer</button>
+<p id="rep" role="status"></p>
+</form>
+<script>
+document.getElementById('fc').addEventListener('submit',async e=>{e.preventDefault();const f=e.target,b=f.querySelector('button'),r=document.getElementById('rep'),v=n=>f.elements[n].value;
+b.disabled=true;r.textContent='Envoi…';
+try{const K='sb_publishable_Oroyu2rpfCBnjnPxrf6GBQ_dTgkisoB';const x=await fetch('https://nhukbglercraslszazan.supabase.co/functions/v1/flova-demande',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify({action:'contact',cible:'flova',nom:v('nom'),email:v('email'),message:'[Confidentialité] '+v('message'),website:v('website'),test:/[?&]contact=test\b/.test(location.search)})});const j=await x.json();
+if(j.ok){r.textContent='Merci, votre demande est bien reçue. Nous vous répondons par e-mail.';f.reset()}else{r.textContent=j.error||'Envoi impossible.'}}catch(_){r.textContent='Envoi impossible pour le moment.'}b.disabled=false});
+</script>
 </main>
 <footer>Flova · <a href="/">Accueil</a> · build by Uxlab.ai</footer>
 </body>
