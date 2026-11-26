@@ -142,7 +142,7 @@ main{max-width:1180px;margin:0 auto;padding:8px 20px 60px}
 footer{text-align:center;color:#5c627a;font-size:12.5px;padding:20px}
 @media (max-width:900px){.livre{grid-template-columns:1fr}.cadre{height:70vh}.atouts{grid-template-columns:1fr 1fr}}
 @media (max-width:520px){.top{padding:14px 16px}main{padding:4px 16px 40px}.hero{margin-top:3vh}.hero p{font-size:15.5px}.ordre .bas{flex-direction:column;align-items:stretch}.ordre small{text-align:center}.taille{display:none}}
-html,body{overflow-x:clip}.enligne{margin-top:14px}.enligne #b-enligne{width:100%}.enligne .adr{display:flex;gap:8px;align-items:center;margin:8px 0 4px;padding:10px 12px;border-radius:12px;background:rgba(127,127,127,.12)}.enligne .adr a{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:600;text-decoration:none;color:inherit}.enligne .adr button{flex:none}.enligne small{opacity:.7}
+html,body{overflow-x:clip}.enligne{margin-top:14px}.enligne #b-enligne{width:100%}.enligne .adr{display:flex;gap:8px;align-items:center;margin:8px 0 4px;padding:10px 12px;border-radius:12px;background:rgba(127,127,127,.12)}.enligne .adr a{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:600;text-decoration:none;color:inherit}.enligne .adr button{flex:none}.enligne small{opacity:.7;display:block}.enligne .lien-discret{margin-top:10px;background:none;border:0;padding:6px 0;color:inherit;opacity:.75;text-decoration:underline;font:inherit;cursor:pointer;min-height:44px}
 </style>
 </head>
 <body>
@@ -215,7 +215,7 @@ html,body{overflow-x:clip}.enligne{margin-top:14px}.enligne #b-enligne{width:100
           </div>
           <div class="enligne" id="enligne" hidden>
             <button class="plein" id="b-enligne">Mettre en ligne</button>
-            <div id="adr" hidden><p>Votre site est en ligne à cette adresse :</p><div class="adr"><a id="adr-lien" target="_blank" rel="noopener"></a><button id="b-adr">Copier</button></div><small>Il peut falloir une minute la toute première fois.</small></div>
+            <div id="adr" hidden><p>Votre site est en ligne à cette adresse :</p><div class="adr"><a id="adr-lien" target="_blank" rel="noopener"></a><button id="b-adr">Copier</button></div><small>Il peut falloir une minute la toute première fois. Les messages laissés par vos visiteurs arrivent dans votre boîte e-mail (compte Google).</small><button class="lien-discret" id="b-retirer">Retirer du web</button></div>
           </div>
         </div>
         <div class="bloc">
@@ -433,7 +433,7 @@ let HTML = '';
 async function livrer(c) {
   const j = await appel({ action: 'etat', id: ID, html: true });
   c = j.chantier; HTML = c.html || ''; SLUG = c.slug || '';
-  $('#enligne').hidden = !SLUG; $('#adr').hidden = true; $('#b-enligne').hidden = false;
+  $('#enligne').hidden = !SLUG; $('#adr').hidden = true; $('#b-enligne').hidden = false; PUBLIE = c.publie !== false; $('#b-retirer').textContent = PUBLIE ? 'Retirer du web' : 'Remettre en ligne';
   majDomaine(c);
   vue('livre');
   $('#apercu').srcdoc = avecMemoire(HTML, ID);
@@ -479,6 +479,15 @@ $('#b-lien').onclick = async () => { try { await navigator.clipboard.writeText(l
 // J1-01 (bus 296) : « Mettre en ligne » montre l'adresse <nom>.ineed.shopping (publiée par l'usine en tiré) avec un bouton Copier.
 const adresseEnLigne = () => 'https://' + SLUG + '.ineed.shopping';
 $('#b-enligne').onclick = () => { if (!SLUG) return toast("L'adresse se prépare, réessayez dans un instant."); $('#adr-lien').textContent = SLUG + '.ineed.shopping'; $('#adr-lien').href = adresseEnLigne(); $('#adr').hidden = false; $('#b-enligne').hidden = true; };
+// J1-02 : retirer le site du web, ou le remettre en ligne
+let PUBLIE = true;
+$('#b-retirer').onclick = async () => {
+  const j = await appel({ action: PUBLIE ? 'retirer' : 'remettre', id: ID });
+  if (!j || !j.ok) return toast((j && j.erreur) || "Action impossible pour le moment.");
+  PUBLIE = j.publie; $('#b-retirer').textContent = PUBLIE ? 'Retirer du web' : 'Remettre en ligne';
+  $('#adr').querySelector('p').textContent = PUBLIE ? 'Votre site est en ligne à cette adresse :' : 'Votre site est retiré du web. Cette adresse ne l\'affiche plus :';
+  toast(PUBLIE ? 'Site remis en ligne' : 'Site retiré du web');
+};
 $('#b-adr').onclick = async () => { try { await navigator.clipboard.writeText(adresseEnLigne()); toast('Adresse copiée'); } catch { toast(adresseEnLigne()); } };
 $('#b-dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([HTML], { type: 'text/html' })); a.download = ($('#l-titre').textContent || 'projet').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.html'; a.click(); };
 $('#nouveau').onclick = () => { mem.del('atelier_apres'); fabriquer.lance = false; clearInterval(suivi); ID = null; mem.del('atelier_id'); mem.del('atelier_q'); history.replaceState(null, '', location.pathname); $('#ordre').value = ''; vue('ordre'); };
