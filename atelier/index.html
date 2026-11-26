@@ -482,7 +482,7 @@ $('#b-enligne').onclick = () => { if (!SLUG) return toast("L'adresse se prépare
 // J1-02 : retirer le site du web, ou le remettre en ligne
 let PUBLIE = true;
 $('#b-retirer').onclick = async () => {
-  const j = await appel({ action: PUBLIE ? 'retirer' : 'remettre', id: ID });
+  let j; try { j = await appel({ action: PUBLIE ? 'retirer' : 'remettre', id: ID }); } catch (e) { return toast((e && e.message) || "Action impossible pour le moment."); }
   if (!j || !j.ok) return toast((j && j.erreur) || "Action impossible pour le moment.");
   PUBLIE = j.publie; $('#b-retirer').textContent = PUBLIE ? 'Retirer du web' : 'Remettre en ligne';
   $('#adr').querySelector('p').textContent = PUBLIE ? 'Votre site est en ligne à cette adresse :' : 'Votre site est retiré du web. Cette adresse ne l\'affiche plus :';
