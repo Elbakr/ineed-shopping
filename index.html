@@ -75,6 +75,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
 .field{display:flex;align-items:center;gap:10px;min-width:0;background:#11131c;border:1.5px solid #262b40;border-radius:16px;padding:6px 6px 6px 16px}
 .field input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:16px Inter}
 .field button,.cta{font:700 15px Inter;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px 18px;cursor:pointer;white-space:nowrap}
+#fIntro.busy{opacity:.85}#fIntro button[disabled]{cursor:progress;display:inline-flex;align-items:center;gap:8px}.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex:none}@keyframes spin{to{transform:rotate(360deg)}}
 .steps{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
 .steps li{display:flex;align-items:center;gap:12px;color:var(--mute);opacity:.35;transition:opacity .3s,color .3s}
 .steps li.on{opacity:1;color:var(--ink)}
@@ -190,7 +191,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
     <h1>Ton site,<br>créé depuis<br>ton <em>TikTok</em>.</h1>
     <p>Colle ton lien. Ton site est prêt en une minute. Ensuite, tu lui parles comme à un pote : il obéit, en direct.</p>
     <form class="field" id="fIntro" action="#"><input id="lnk" value="tiktok.com/@fukay1070" aria-label="Lien TikTok ou Instagram" inputmode="url" autocapitalize="none"><button type="submit">Créer mon site</button></form>
-    <ul class="steps" id="steps" hidden>
+    <ul class="steps" id="steps" role="status" aria-live="polite" hidden>
       <li><i>1</i>Lecture du profil @fukay1070</li>
       <li><i>2</i>Choix du modèle : agence créative</li>
       <li><i>3</i>Écriture des textes, chiffres et sections</li>
@@ -390,7 +391,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
   }
   $('skip').addEventListener('click', closeIntro);
   $('fIntro').addEventListener('submit', e => {
-    e.preventDefault(); $('fIntro').hidden = true; $('skip').hidden = true; $('steps').hidden = false;
+    e.preventDefault(); const fi = $('fIntro'); if (fi.dataset.enCours) return; fi.dataset.enCours = '1'; const bt = fi.querySelector('button'); bt.disabled = true; bt.setAttribute('aria-busy', 'true'); bt.innerHTML = '<span class="spin" aria-hidden="true"></span>Création…'; $('lnk').readOnly = true; fi.classList.add('busy'); $('skip').hidden = true; $('steps').hidden = false;
     const li = [...$('steps').children]; let i = 0;
     const step = () => {
       if (i > 0) { li[i - 1].classList.add('done'); li[i - 1].querySelector('i').textContent = '✓'; }
