@@ -47,7 +47,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1
 @keyframes bl{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:8px 10px 2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chips button{flex:none;font:500 13px Inter;background:#fff;color:#111b21;border:1px solid #d1d7db;border-radius:999px;padding:7px 12px;cursor:pointer}
+.chips button{flex:none;min-height:44px;font:500 13px Inter;background:#fff;color:#111b21;border:1px solid #d1d7db;border-radius:999px;padding:7px 12px;cursor:pointer}
 .comp{display:flex;align-items:flex-end;gap:7px;padding:8px 8px 10px}
 .comp textarea{flex:1;resize:none;border:0;border-radius:22px;padding:11px 16px;font:16px/1.35 Inter;max-height:120px;outline:0;background:#fff;color:#111b21}
 .go{width:46px;height:46px;border-radius:50%;border:0;background:var(--wa);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
@@ -74,6 +74,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
 .card p{color:var(--mute);font-size:16.5px;margin:0 0 24px}
 .field{display:flex;align-items:center;gap:10px;min-width:0;background:#11131c;border:1.5px solid #262b40;border-radius:16px;padding:6px 6px 6px 16px}
 .field input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:16px Inter}
+@media (max-width:480px){#fIntro{flex-wrap:wrap;padding:6px}#fIntro input{flex:1 1 100%;padding:10px 10px 4px}#fIntro button{flex:1 1 100%}}
 .field button,.cta{font:700 15px Inter;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px 18px;cursor:pointer;white-space:nowrap}
 #fIntro.busy{opacity:.85}#fIntro button[disabled]{cursor:progress;display:inline-flex;align-items:center;gap:8px}.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex:none}@keyframes spin{to{transform:rotate(360deg)}}
 .steps{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
@@ -190,7 +191,7 @@ iframe{flex:1;width:100%;border:0;background:#06070b}
   <div class="card">
     <h1>Ton site,<br>créé depuis<br>ton <em>TikTok</em>.</h1>
     <p>Colle ton lien. Ton site est prêt en une minute. Ensuite, tu lui parles comme à un pote : il obéit, en direct.</p>
-    <form class="field" id="fIntro" action="#"><input id="lnk" value="tiktok.com/@fukay1070" aria-label="Lien TikTok ou Instagram" inputmode="url" autocapitalize="none"><button type="submit">Créer mon site</button></form>
+    <form class="field" id="fIntro" action="#"><input id="lnk" value="tiktok.com/@fukay1070" placeholder="Ex. : tiktok.com/@toncompte" aria-label="Lien TikTok ou Instagram" inputmode="url" autocapitalize="none"><button type="submit">Créer mon site</button></form>
     <ul class="steps" id="steps" role="status" aria-live="polite" hidden>
       <li><i>1</i>Lecture du profil @fukay1070</li>
       <li><i>2</i>Choix du modèle : agence créative</li>
